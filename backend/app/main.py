@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base, SessionLocal
 from .config import settings
-from .routers import auth, courses, progress, payments, certificates, notifications, users, favorites
-from .models import User, Course, Lesson
+from .routers import auth, courses, progress, payments, certificates, notifications, users, favorites, quiz, lessons, categories, instructors, reviews, coupons, payment_provider, platform, enterprise
+from .models import User, Course, Lesson, Quiz, QuizQuestion
 from .security import get_password_hash
 
 # Create tables
@@ -29,6 +29,15 @@ app.include_router(certificates.router, prefix="/api")
 app.include_router(notifications.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(favorites.router, prefix="/api")
+app.include_router(quiz.router, prefix="/api")
+app.include_router(lessons.router, prefix="/api")
+app.include_router(categories.router, prefix="/api")
+app.include_router(instructors.router, prefix="/api")
+app.include_router(reviews.router, prefix="/api")
+app.include_router(coupons.router, prefix="/api")
+app.include_router(payment_provider.router, prefix="/api")
+app.include_router(platform.router, prefix="/api")
+app.include_router(enterprise.router, prefix="/api")
 
 @app.get("/")
 def home():
@@ -163,6 +172,33 @@ def seed_database():
             
             db.add_all([l1, l2, l3, l4])
             db.commit()
+
+            # Seed a Quiz for Course 1 (Quantum Mechanics)
+            q1 = Quiz(
+                id="quiz_c1",
+                courseId="c1",
+                title="Quantum Mechanics Fundamentals"
+            )
+            db.add(q1)
+            db.commit()
+
+            qq1 = QuizQuestion(
+                id="qq1",
+                quizId="quiz_c1",
+                text="In the context of the double-slit experiment, what does observing the electron do to its superposition state?",
+                options=["It duplicates the electron", "It forces the electron into a definite state (collapses the wave function)", "It reverses the electron's spin", "It has absolutely no effect on the electron"],
+                answer=1
+            )
+            qq2 = QuizQuestion(
+                id="qq2",
+                quizId="quiz_c1",
+                text="Which equation describes how the quantum state of a physical system changes in time?",
+                options=["Maxwell's Equations", "Schrodinger Equation", "Einstein Field Equations", "Planck's Law"],
+                answer=1
+            )
+            db.add_all([qq1, qq2])
+            db.commit()
+
             print("Database seeded successfully!")
             
     finally:
