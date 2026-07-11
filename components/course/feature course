@@ -1,0 +1,22 @@
+import Container from "@/components/common/container";
+import SectionTitle from "@/components/common/section-title";
+import CourseCard from "./course-card";
+
+export default function FeaturedCourses() {
+  return (
+    <section className="bg-slate-50 py-24">
+      <Container>
+        <SectionTitle
+          title="Popular Courses"
+          subtitle="Start learning with our most popular science courses."
+        />
+
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <CourseCard title="Physics Masterclass" />
+          <CourseCard title="Astronomy Basics" />
+          <CourseCard title="Organic Chemistry" />
+        </div>
+      </Container>
+    </section>
+  );
+}
