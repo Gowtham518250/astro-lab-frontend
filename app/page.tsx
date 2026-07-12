@@ -1,4 +1,5 @@
 import GlassNavbar from "@/components/landing/GlassNavbar";
+import CoverSection from "@/components/landing/CoverSection";
 import HeroCoursera from "@/components/landing/HeroCoursera";
 import PopularCategories from "@/components/landing/PopularCategories";
 import FeaturedCourses from "@/components/landing/FeaturedCourses";
@@ -14,6 +15,7 @@ export default function LandingPage() {
   return (
     <main className="bg-[var(--color-background)] min-h-screen text-white selection:bg-[var(--color-primary)] selection:text-white overflow-hidden">
       <GlassNavbar />
+      <CoverSection />
       <HeroCoursera />
       <PopularCategories />
       <FeaturedCourses />

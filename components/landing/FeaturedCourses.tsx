@@ -5,49 +5,9 @@ import Link from "next/link";
 import { ArrowRight, Clock, Star } from "lucide-react";
 import { useCourses } from "@/hooks/useCourse";
 
-// Fallback placeholder courses if backend is empty/down
-const fallbackCourses = [
-  {
-    id: "fb1",
-    title: "Quantum Machine Learning",
-    description: "Explore the intersection of quantum computing and neural networks. Learn to build models that process data in multi-dimensional superposition.",
-    thumbnail: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop",
-    category: "AI & Data Science",
-    instructor: "Dr. Elena Rostova",
-    level: "Advanced",
-    duration: 40,
-    price: 199,
-    slug: "quantum-machine-learning"
-  },
-  {
-    id: "fb2",
-    title: "Astrodynamics & Orbital Mechanics",
-    description: "Master the physics of spaceflight. Calculate orbital trajectories, transfer orbits, and deep space navigation using Python.",
-    thumbnail: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop",
-    category: "Space Tech",
-    instructor: "Cmdr. James Holden",
-    level: "Intermediate",
-    duration: 32,
-    price: 149,
-    slug: "astrodynamics-orbital-mechanics"
-  },
-  {
-    id: "fb3",
-    title: "Python for Astrophysics",
-    description: "Analyze real exoplanet transit data and telescope imagery. The perfect starting point for software engineers looking to the stars.",
-    thumbnail: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop",
-    category: "Programming",
-    instructor: "Prof. Sarah Chen",
-    level: "Beginner",
-    duration: 24,
-    price: 99,
-    slug: "python-for-astrophysics"
-  }
-];
-
 export default function FeaturedCourses({ limit }: { limit?: number }) {
   const { data, isLoading } = useCourses({ limit: limit || 6 });
-  const courses = data?.courses?.length ? data.courses : fallbackCourses;
+  const courses = data?.courses || [];
 
   return (
     <section id="explore" className="py-24 bg-[var(--color-background-alt)] overflow-hidden relative">
@@ -141,7 +101,7 @@ export default function FeaturedCourses({ limit }: { limit?: number }) {
                       <span className="text-xs text-gray-400">{course.duration} hrs</span>
                     </div>
                     <span className="font-bold text-white bg-white/10 px-3 py-1 rounded-full border border-white/20">
-                      ${course.price}
+                      ₹{course.price}
                     </span>
                   </div>
                 </div>

@@ -21,7 +21,8 @@ export default function EnterpriseDashboardPage() {
   const [buySeats, setBuySeats] = useState(50)
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30 bg-particles">
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30 relative">
+      <div className="bg-particles" />
       <PublicNavbar />
       
       {/* Top Header */}

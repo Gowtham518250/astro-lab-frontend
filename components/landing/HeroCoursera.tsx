@@ -36,45 +36,18 @@ export default function HeroCoursera() {
   }, []);
 
   return (
-    <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden pt-24 bg-[var(--color-background-alt)]">
+    <section className="relative flex flex-col justify-center overflow-hidden py-24 bg-black border-t border-white/5">
       {/* Dynamic Background Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Mouse-tracking Aurora Mesh */}
+        {/* Soft Glow */}
         <motion.div 
           animate={{ 
-            x: mousePosition.x * -60, 
-            y: mousePosition.y * -60,
+            x: mousePosition.x * -30, 
+            y: mousePosition.y * -30,
           }}
           transition={{ type: "spring", stiffness: 40, damping: 20 }}
-          className="absolute -top-[10%] -right-[5%] w-[60%] h-[60%] bg-[var(--color-primary)]/10 blur-[120px] rounded-full animate-aurora mix-blend-multiply"
+          className="absolute -top-[10%] right-[10%] w-[40%] h-[40%] bg-blue-500/10 blur-[100px] rounded-full mix-blend-screen"
         />
-        <motion.div 
-          animate={{ 
-            x: mousePosition.x * 60, 
-            y: mousePosition.y * 60,
-          }}
-          transition={{ type: "spring", stiffness: 40, damping: 20 }}
-          className="absolute -bottom-[10%] -left-[5%] w-[50%] h-[50%] bg-[var(--color-secondary)]/10 blur-[120px] rounded-full animate-aurora mix-blend-multiply"
-        />
-
-        {/* Floating Particles */}
-        <div className="absolute inset-0 overflow-hidden">
-          {particles.map((particle) => (
-            <div 
-              key={particle.id}
-              className="absolute bg-[var(--color-primary)] rounded-full animate-float"
-              style={{
-                width: particle.width,
-                height: particle.height,
-                top: particle.top,
-                left: particle.left,
-                animationDuration: particle.animationDuration,
-                animationDelay: particle.animationDelay,
-                opacity: particle.opacity
-              }}
-            />
-          ))}
-        </div>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center w-full">

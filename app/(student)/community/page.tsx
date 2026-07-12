@@ -62,7 +62,8 @@ export default function CommunityPage() {
   }, [activeChannel])
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-200 overflow-hidden font-sans bg-particles selection:bg-indigo-500/30">
+    <div className="flex h-screen bg-slate-950 text-slate-200 overflow-hidden font-sans selection:bg-indigo-500/30 relative">
+      <div className="bg-particles" />
       
       {/* 1. Servers Sidebar (Leftmost) */}
       <div className="w-[72px] bg-slate-900/50 backdrop-blur-xl border-r border-white/10 flex flex-col items-center py-4 gap-4 z-20 shadow-2xl">
