@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useCallback, createContext, useContext } from 'react'
 import { useRouter } from 'next/navigation'
+import { fetchApi } from '@/lib/api'
 
 export interface AuthUser {
   id: string
   name: string
   email: string
-  role: 'STUDENT' | 'ADMIN'
+  role: 'USER' | 'STUDENT' | 'ADMIN'
   totalXP: number
   streak: number
   image?: string | null
@@ -40,9 +41,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch('/api/auth', { cache: 'no-store' })
-      const data = await res.json()
-      setUser(data.user ?? null)
+      const res = await fetchApi('/api/users/me')
+      if (res.ok) {
+        const data = await res.json()
+        setUser(data)
+      } else {
+        setUser(null)
+      }
     } catch {
       setUser(null)
     } finally {
@@ -54,13 +59,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     try {
-      const res = await fetch('/api/auth', {
+      const res = await fetchApi('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login', email, password }),
+        body: JSON.stringify({ email, password }),
       })
       const data = await res.json()
-      if (!res.ok) return { ok: false, error: data.error }
+      if (!res.ok) return { ok: false, error: data.detail || 'Login failed' }
+      
+      // Store the Bearer token in localStorage
+      if (data.access_token) {
+        localStorage.setItem('astro_lab_token', data.access_token)
+      }
+      
       setUser(data.user)
       return { ok: true }
     } catch {
@@ -70,13 +80,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = useCallback(async (formData: any) => {
     try {
-      const res = await fetch('/api/auth', {
+      const res = await fetchApi('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'register', ...formData }),
+        body: JSON.stringify({
+           name: formData.name, 
+           email: formData.email, 
+           password: formData.password,
+           role: formData.role || 'USER'
+        }),
       })
       const data = await res.json()
-      if (!res.ok) return { ok: false, error: data.error }
+      if (!res.ok) return { ok: false, error: data.detail || 'Registration failed' }
+      
+      if (data.access_token) {
+        localStorage.setItem('astro_lab_token', data.access_token)
+      }
+      
       setUser(data.user)
       return { ok: true }
     } catch {
@@ -85,11 +104,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    await fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'logout' }),
-    })
+    localStorage.removeItem('astro_lab_token')
+    
+    // Attempt backend logout to clear any HttpOnly cookies just in case
+    try {
+      await fetchApi('/api/auth/logout', { method: 'POST' })
+    } catch {}
+    
     setUser(null)
     router.push('/')
   }, [router])

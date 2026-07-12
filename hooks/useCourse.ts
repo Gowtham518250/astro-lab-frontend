@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { fetchApi } from '@/lib/api'
 
 export interface Course {
   id: string
@@ -50,7 +51,7 @@ export function useCourses(options?: {
       if (options?.page) params.set('page', options.page.toString())
       if (options?.limit) params.set('limit', options.limit.toString())
 
-      const res = await fetch(`/api/courses?${params.toString()}`)
+      const res = await fetchApi(`/api/courses?${params.toString()}`)
       if (!res.ok) throw new Error('Failed to fetch courses')
       return res.json() as Promise<CoursesResponse>
     },
@@ -61,11 +62,7 @@ export function useCourse(courseIdOrSlug: string, isSlug = false) {
   return useQuery({
     queryKey: ['course', courseIdOrSlug],
     queryFn: async () => {
-      // For simplicity, we assume we fetch by ID. 
-      // The backend route handles ID. If we want slug, we should adjust API.
-      // Wait, our API app/api/courses/[courseId]/route.ts is meant for ID.
-      // Let's stick to ID for now, or use a separate endpoint for slug.
-      const res = await fetch(`/api/courses/${courseIdOrSlug}`)
+      const res = await fetchApi(`/api/courses/${courseIdOrSlug}`)
       if (!res.ok) throw new Error('Failed to fetch course')
       return res.json()
     },
