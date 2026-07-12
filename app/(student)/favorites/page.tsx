@@ -121,10 +121,10 @@ export default function FavoritesPage() {
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-xl font-bold text-white">${fav.course.price}</span>
+                      <span className="text-xl font-bold text-white">₹{fav.course.price}</span>
                       {fav.course.discount > 0 && (
                         <span className="text-xs text-slate-500 line-through">
-                          ${(fav.course.price * (1 + fav.course.discount / 100)).toFixed(0)}
+                          ₹{(fav.course.price * (1 + fav.course.discount / 100)).toFixed(0)}
                         </span>
                       )}
                     </div>

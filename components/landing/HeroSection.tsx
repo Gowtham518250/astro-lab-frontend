@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 export default function HeroSection() {
   const { user } = useAuth();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [stars, setStars] = useState<Array<{ id: number; width: string; height: string; top: string; left: string; animationDuration: string; animationDelay: string; opacity: number }>>([]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -18,6 +19,19 @@ export default function HeroSection() {
       });
     };
     window.addEventListener("mousemove", handleMouseMove);
+    
+    // Generate random stars on client-side to prevent SSR hydration mismatch
+    setStars(Array.from({ length: 50 }).map((_, i) => ({
+      id: i,
+      width: Math.random() * 3 + 'px',
+      height: Math.random() * 3 + 'px',
+      top: Math.random() * 100 + '%',
+      left: Math.random() * 100 + '%',
+      animationDuration: (Math.random() * 5 + 5) + 's',
+      animationDelay: (Math.random() * 5) + 's',
+      opacity: Math.random() * 0.8 + 0.2
+    })));
+
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
@@ -46,18 +60,18 @@ export default function HeroSection() {
         
         {/* Stars (Pure CSS particles via div box-shadow or simple divs for performance) */}
         <div className="absolute inset-0 overflow-hidden opacity-50">
-          {Array.from({ length: 50 }).map((_, i) => (
+          {stars.map((star) => (
             <div 
-              key={i}
+              key={star.id}
               className="absolute bg-white rounded-full animate-float"
               style={{
-                width: Math.random() * 3 + 'px',
-                height: Math.random() * 3 + 'px',
-                top: Math.random() * 100 + '%',
-                left: Math.random() * 100 + '%',
-                animationDuration: (Math.random() * 5 + 5) + 's',
-                animationDelay: (Math.random() * 5) + 's',
-                opacity: Math.random() * 0.8 + 0.2
+                width: star.width,
+                height: star.height,
+                top: star.top,
+                left: star.left,
+                animationDuration: star.animationDuration,
+                animationDelay: star.animationDelay,
+                opacity: star.opacity
               }}
             />
           ))}
@@ -85,12 +99,12 @@ export default function HeroSection() {
           </motion.div>
 
           <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight text-white">
-            Explore Beyond <br/>
-            <span className="text-gradient">Imagination</span>
+            Master the <br/>
+            <span className="text-gradient">Universe of Tech</span>
           </h1>
 
           <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-            Building the future through innovation, AI and space technology. Join the most advanced learning platform in the cosmos.
+            Learn AI, Data Science, and Space Technology from industry experts. The most advanced educational platform in the cosmos.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">

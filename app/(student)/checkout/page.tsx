@@ -134,11 +134,11 @@ export default function CheckoutPage() {
                       <Star className="h-4 w-4 text-amber-300" />
                       Rated 4.9/5
                     </div>
-                    <p className="mt-2 text-lg font-semibold text-white">$89</p>
+                    <p className="mt-2 text-lg font-semibold text-white">₹89</p>
                   </div>
                   <div className="rounded-[18px] border border-white/10 bg-slate-950/55 p-3">
                     <p className="text-sm text-slate-400">Discount</p>
-                    <p className="mt-2 text-lg font-semibold text-white">{appliedCoupon ? '$17.80' : '$0.00'}</p>
+                    <p className="mt-2 text-lg font-semibold text-white">{appliedCoupon ? '-₹17.80' : '₹0.00'}</p>
                   </div>
                 </div>
 
@@ -209,19 +209,19 @@ export default function CheckoutPage() {
                   <div className="rounded-[22px] border border-white/10 bg-slate-950/60 p-4">
                     <div className="flex items-center justify-between text-sm text-slate-300">
                       <span>Subtotal</span>
-                      <span>$89.00</span>
+                      <span>₹89.00</span>
                     </div>
                     <div className="mt-2 flex items-center justify-between text-sm text-slate-300">
                       <span>Discount</span>
-                      <span>{appliedCoupon ? '-$17.80' : '$0.00'}</span>
+                      <span>{appliedCoupon ? '-₹17.80' : '₹0.00'}</span>
                     </div>
                     <div className="mt-2 flex items-center justify-between text-sm text-slate-300">
                       <span>Tax</span>
-                      <span>$7.12</span>
+                      <span>₹7.12</span>
                     </div>
                     <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3 text-base font-semibold text-white">
                       <span>Total</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>₹{total.toFixed(2)}</span>
                     </div>
                   </div>
 

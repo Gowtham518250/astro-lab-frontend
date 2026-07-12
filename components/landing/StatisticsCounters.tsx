@@ -32,38 +32,36 @@ function Counter({ from, to, duration, suffix = "" }: { from: number, to: number
 
 export default function StatisticsCounters() {
   const stats = [
-    { label: "Active Astronauts", value: 14500, suffix: "+" },
-    { label: "Missions Completed", value: 250, suffix: "k" },
-    { label: "AI Models Deployed", value: 42, suffix: "" },
-    { label: "Research Petabytes", value: 9, suffix: " PB" }
+    { label: "Learners Enrolled", value: 50, suffix: "k+" },
+    { label: "Courses Available", value: 1200, suffix: "+" },
+    { label: "Countries Reached", value: 195, suffix: "" },
+    { label: "Certificates Issued", value: 35, suffix: "k+" }
   ];
 
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-24 bg-[var(--color-background)] border-y border-white/10 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-[var(--color-primary)]/5 blur-[150px] rounded-full pointer-events-none" />
+
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="glass-panel rounded-[3rem] p-12 md:p-20 relative overflow-hidden">
-          {/* Subtle glow inside the panel */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1/2 bg-[var(--color-primary)]/20 blur-[100px] rounded-full pointer-events-none" />
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 relative z-10">
-            {stats.map((stat, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
-                className="text-center"
-              >
-                <div className="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tighter">
-                  <Counter from={0} to={stat.value} duration={2.5} suffix={stat.suffix} />
-                </div>
-                <div className="text-sm md:text-base text-[var(--color-secondary)] uppercase tracking-widest font-semibold">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
+          {stats.map((stat, idx) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              className="flex flex-col items-center justify-center p-6 glass-panel border-white/20 rounded-2xl md:border-none md:bg-transparent md:backdrop-blur-none"
+            >
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
+                <Counter from={0} to={stat.value} duration={2.5} suffix={stat.suffix} />
+              </div>
+              <div className="text-blue-100 font-medium">
+                {stat.label}
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

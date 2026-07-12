@@ -17,8 +17,8 @@ export interface AuthUser {
 interface AuthState {
   user: AuthUser | null
   loading: boolean
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>
-  register: (data: any) => Promise<{ ok: boolean; error?: string }>
+  login: (email: string, password: string) => Promise<{ ok: boolean; user?: AuthUser; error?: string }>
+  register: (data: any) => Promise<{ ok: boolean; user?: AuthUser; error?: string }>
   logout: () => Promise<void>
   refresh: () => Promise<void>
 }
@@ -66,13 +66,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json()
       if (!res.ok) return { ok: false, error: data.detail || 'Login failed' }
       
-      // Store the Bearer token in localStorage
+      // Store the Bearer token in localStorage and as a cookie for middleware
       if (data.access_token) {
         localStorage.setItem('astro_lab_token', data.access_token)
+        document.cookie = `astro_session=${data.access_token}; path=/; max-age=86400; SameSite=Lax`
       }
       
       setUser(data.user)
-      return { ok: true }
+      return { ok: true, user: data.user }
     } catch {
       return { ok: false, error: 'Network error. Please try again.' }
     }
@@ -94,10 +95,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (data.access_token) {
         localStorage.setItem('astro_lab_token', data.access_token)
+        document.cookie = `astro_session=${data.access_token}; path=/; max-age=86400; SameSite=Lax`
       }
       
       setUser(data.user)
-      return { ok: true }
+      return { ok: true, user: data.user }
     } catch {
       return { ok: false, error: 'Network error. Please try again.' }
     }
@@ -105,6 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     localStorage.removeItem('astro_lab_token')
+    document.cookie = `astro_session=; path=/; max-age=0`
     
     // Attempt backend logout to clear any HttpOnly cookies just in case
     try {

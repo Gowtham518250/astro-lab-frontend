@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Space_Grotesk } from "next/font/google";
+import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { QueryProvider } from "@/providers/QueryProvider";
 import { AuthProviderWrapper } from "@/providers/AuthProvider";
 import { Toaster } from "react-hot-toast";
 
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-sans' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: "Astro Lab — Science Learning Platform",
@@ -22,10 +23,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={cn("font-sans", spaceGrotesk.variable)}>
+    <html lang="en" className={cn("font-sans", inter.variable)}>
       <body className="antialiased">
-        <AuthProviderWrapper>
-          {children}
+        <QueryProvider>
+          <AuthProviderWrapper>
+            {children}
           <Toaster
             position="top-right"
             toastOptions={{
@@ -45,7 +47,8 @@ export default function RootLayout({
               },
             }}
           />
-        </AuthProviderWrapper>
+          </AuthProviderWrapper>
+        </QueryProvider>
       </body>
     </html>
   );

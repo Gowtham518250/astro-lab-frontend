@@ -1,101 +1,105 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import { motion } from "framer-motion";
+import { Search, ChevronRight, Menu, Atom } from "lucide-react";
 import Link from "next/link";
-import { Rocket } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function GlassNavbar() {
-  const { user, logout } = useAuth();
-  const { scrollY } = useScroll();
-  const [hidden, setHidden] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const { user } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious() || 0;
-    if (latest > previous && latest > 150) {
-      setHidden(true);
-    } else {
-      setHidden(false);
-    }
-    
-    setIsScrolled(latest > 50);
-  });
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <motion.nav
-      variants={{
-        visible: { y: 0 },
-        hidden: { y: "-100%" },
-      }}
-      animate={hidden ? "hidden" : "visible"}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        isScrolled ? "py-4" : "py-6"
+    <motion.nav 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        scrolled 
+          ? "bg-[var(--color-background)]/80 backdrop-blur-xl border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] py-4" 
+          : "bg-transparent py-6"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6">
-        <div className={`flex items-center justify-between rounded-2xl px-6 py-4 ${
-          isScrolled ? "glass-panel" : "bg-transparent"
-        } transition-all duration-300`}>
-          
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="bg-[var(--color-primary)]/20 p-2 rounded-xl group-hover:bg-[var(--color-primary)]/40 transition-colors">
-              <Rocket className="text-[var(--color-secondary)] w-6 h-6" />
-            </div>
-            <span className="text-xl font-bold tracking-wider text-white">
-              ASTRO<span className="text-[var(--color-primary)]">LAB</span>
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-8">
-            {["Home", "Missions", "Technology", "Gallery", "About", "Contact"].map((item) => (
-              <Link 
-                key={item} 
-                href={`#${item.toLowerCase()}`}
-                className="text-sm font-medium text-gray-300 hover:text-white transition-colors relative group"
-              >
-                {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--color-secondary)] transition-all group-hover:w-full"></span>
-              </Link>
-            ))}
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center group-hover:scale-105 transition-transform shadow-lg shadow-[var(--color-primary)]/40">
+            <Atom className="w-5 h-5 text-white" />
           </div>
+          <span className="font-bold text-xl tracking-tight text-white">
+            Astro<span className="text-[var(--color-primary)]">Lab</span>
+          </span>
+        </Link>
 
-          <div className="flex items-center gap-4">
-            {user ? (
-              <>
-                <Link 
-                  href="/dashboard"
-                  className="text-sm font-medium text-white hover:text-[var(--color-secondary)] transition-colors"
-                >
-                  Dashboard
-                </Link>
-                <button 
-                  onClick={() => logout()}
-                  className="px-5 py-2.5 rounded-full bg-white/10 text-white font-semibold text-sm hover:scale-105 transition-transform"
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link 
-                  href="/login"
-                  className="text-sm font-medium text-white hover:text-[var(--color-secondary)] transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link 
-                  href="/register"
-                  className="px-5 py-2.5 rounded-full bg-white text-black font-semibold text-sm hover:scale-105 transition-transform shadow-[0_0_20px_rgba(124,92,255,0.4)] hover:shadow-[0_0_30px_rgba(76,201,240,0.6)]"
-                >
-                  Get Started
-                </Link>
-              </>
-            )}
-          </div>
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-8">
+          <Link href="/courses" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Explore</Link>
+          <Link href="/categories" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Categories</Link>
+          <Link href="/business" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">For Business</Link>
+          <Link href="/universities" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">For Universities</Link>
         </div>
+
+        {/* Auth Buttons & Search */}
+        <div className="hidden md:flex items-center gap-4">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const query = formData.get("search");
+              if (query) {
+                window.location.href = `/courses?search=${encodeURIComponent(query.toString())}`;
+              }
+            }}
+            className="relative group"
+          >
+            <input 
+              type="text" 
+              name="search"
+              placeholder="Search courses..."
+              className="w-8 focus:w-48 transition-all duration-300 bg-transparent border-none outline-none text-sm text-white placeholder-transparent focus:placeholder-gray-500 pl-8 py-1 rounded-full focus:bg-white/10"
+            />
+            <button type="submit" className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-[var(--color-primary)] transition-colors p-1 pointer-events-none">
+              <Search className="w-4 h-4" />
+            </button>
+          </form>
+          
+          <div className="h-4 w-px bg-white/20 mx-2" />
+
+          {user ? (
+            <Link 
+              href="/dashboard"
+              className="px-5 py-2 text-sm font-bold bg-white text-black rounded-full hover:bg-gray-200 transition-colors flex items-center gap-2"
+            >
+              My Learning <ChevronRight className="w-4 h-4" />
+            </Link>
+          ) : (
+            <>
+              <Link 
+                href="/login" 
+                className="text-sm font-bold text-gray-300 hover:text-white transition-colors"
+              >
+                Log In
+              </Link>
+              <Link 
+                href="/register" 
+                className="px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-secondary)] text-white text-sm font-semibold rounded-full transition-all shadow-[0_0_15px_rgba(124,92,255,0.4)] hover:shadow-[0_0_25px_rgba(76,201,240,0.6)]"
+              >
+                Sign Up Free
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Menu Button */}
+        <button className="md:hidden text-white p-2">
+          <Menu className="w-6 h-6" />
+        </button>
       </div>
     </motion.nav>
   );

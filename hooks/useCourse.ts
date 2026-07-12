@@ -15,6 +15,8 @@ export interface Course {
   duration: number
   price: number
   discount: number
+  previewVideo?: string
+  mainVideo?: string
   isPremium: boolean
   isFeatured: boolean
   isPublished: boolean

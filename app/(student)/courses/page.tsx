@@ -260,7 +260,7 @@ export default function CoursesPage() {
 
                   <div className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-bold text-white">${course.price}</span>
+                      <span className="text-2xl font-bold text-white">₹{course.price}</span>
                     </div>
                     <Link href={`/courses/${course.id}`} className="flex items-center justify-center p-2 rounded-xl bg-white/5 hover:bg-cyan-400 hover:text-slate-950 transition-colors">
                       <ChevronRight className="h-5 w-5" />
@@ -281,5 +281,28 @@ export default function CoursesPage() {
 
       <PublicFooter />
     </div>
+  )
+}
+
+function FavoriteButton({ courseId }: { courseId: string }) {
+  const { toggle, isFavorited } = useFavorites()
+  const active = isFavorited(courseId)
+  
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggle.mutate(courseId)
+  }
+
+  return (
+    <button 
+      onClick={handleClick}
+      className={cn(
+        "text-slate-400 hover:text-rose-400 transition-colors p-1.5 rounded-lg hover:bg-white/5",
+        active && "text-rose-500 hover:text-rose-600"
+      )}
+    >
+      <Heart className={cn("h-5 w-5", active && "fill-current")} />
+    </button>
   )
 }

@@ -100,9 +100,9 @@ const faqs = [
 ]
 
 const relatedCourses = [
-  { title: 'Astrobiology Foundations', duration: '3 weeks', price: '$59' },
-  { title: 'AI for Scientific Research', duration: '7 weeks', price: '$119' },
-  { title: 'Biochemistry Lab', duration: '8 weeks', price: '$129' },
+  { title: 'Astrobiology Foundations', duration: '3 weeks', price: '₹59' },
+  { title: 'AI for Scientific Research', duration: '7 weeks', price: '₹119' },
+  { title: 'Biochemistry Lab', duration: '8 weeks', price: '₹129' },
 ]
 
 export default function CourseDetailsPage() {
@@ -176,7 +176,7 @@ export default function CourseDetailsPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-3xl font-semibold text-white">${course.price}</p>
+                    <p className="text-3xl font-semibold text-white">₹{course.price}</p>
                     {course.discount > 0 && <p className="text-sm text-slate-400">Save {course.discount}%</p>}
                   </div>
                   {course.isFeatured && <div className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-sm text-cyan-200">Featured</div>}
@@ -351,7 +351,7 @@ export default function CourseDetailsPage() {
               </div>
               <div className="space-y-4">
                 <div className="rounded-[20px] border border-white/10 bg-slate-950/55 p-4">
-                  <p className="text-3xl font-semibold text-white">${course.price}</p>
+                  <p className="text-3xl font-semibold text-white">₹{course.price}</p>
                   <p className="mt-1 text-sm text-slate-400">Lifetime access</p>
                 </div>
                 <div className="space-y-2 text-sm text-slate-300">

@@ -1,20 +1,28 @@
 import GlassNavbar from "@/components/landing/GlassNavbar";
-import HeroSection from "@/components/landing/HeroSection";
-import AboutMission from "@/components/landing/AboutMission";
-import TechnologiesGrid from "@/components/landing/TechnologiesGrid";
+import HeroCoursera from "@/components/landing/HeroCoursera";
+import PopularCategories from "@/components/landing/PopularCategories";
+import FeaturedCourses from "@/components/landing/FeaturedCourses";
+import WhyLearnWithUs from "@/components/landing/WhyLearnWithUs";
+import LearningPaths from "@/components/landing/LearningPaths";
+import TopInstructors from "@/components/landing/TopInstructors";
 import StatisticsCounters from "@/components/landing/StatisticsCounters";
-import CinematicGallery from "@/components/landing/CinematicGallery";
+import Testimonials from "@/components/landing/Testimonials";
+import PricingPlans from "@/components/landing/PricingPlans";
 import FooterContact from "@/components/landing/FooterContact";
 
 export default function LandingPage() {
   return (
-    <main className="bg-[var(--color-background)] min-h-screen text-white selection:bg-[var(--color-primary)] selection:text-white">
+    <main className="bg-[var(--color-background)] min-h-screen text-white selection:bg-[var(--color-primary)] selection:text-white overflow-hidden">
       <GlassNavbar />
-      <HeroSection />
-      <AboutMission />
-      <TechnologiesGrid />
+      <HeroCoursera />
+      <PopularCategories />
+      <FeaturedCourses />
+      <WhyLearnWithUs />
+      <LearningPaths />
+      <TopInstructors />
       <StatisticsCounters />
-      <CinematicGallery />
+      <Testimonials />
+      <PricingPlans />
       <FooterContact />
     </main>
   );

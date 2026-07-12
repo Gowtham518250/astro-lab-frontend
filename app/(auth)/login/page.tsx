@@ -1,399 +1,359 @@
-'use client'
+"use client";
 
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState, Suspense } from "react"
-import { AnimatePresence, motion } from "framer-motion"
-import { useAuth } from "@/hooks/useAuth"
-import toast from "react-hot-toast"
-import {
-  ArrowRight,
-  Atom,
-  BookOpen,
-  CheckCircle2,
-  ChevronRight,
-  Eye,
-  EyeOff,
-  GraduationCap,
-  Lock,
-  Mail,
-  Orbit,
-  ShieldCheck,
-  Sparkles,
-  Users,
-} from "lucide-react"
-import { FaApple, FaMicrosoft } from "react-icons/fa6"
-import { FcGoogle } from "react-icons/fc"
-
-import { cn } from "@/lib/utils"
-
-const stats = [
-  { label: "120+ Courses", icon: BookOpen },
-  { label: "50,000+ Students", icon: Users },
-  { label: "Expert Mentors", icon: GraduationCap },
-  { label: "Lifetime Access", icon: ShieldCheck },
-]
-
-const socialProviders = [
-  { name: "Google", icon: FcGoogle },
-  { name: "Microsoft", icon: FaMicrosoft },
-  { name: "Apple", icon: FaApple },
-]
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, Suspense, useEffect } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
+import toast from "react-hot-toast";
+import { ArrowLeft, Eye, EyeOff, Lock, Mail, Atom, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center"><div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin"></div></div>}>
       <LoginForm />
     </Suspense>
-  )
+  );
 }
 
 function LoginForm() {
-  const router = useRouter()
-  const { login } = useAuth()
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [errorMessage, setErrorMessage] = useState("")
+  const router = useRouter();
+  const { login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Advanced Mouse Tracking Glow Effect
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mouseX, mouseY]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setIsSubmitting(true)
-    setIsSuccess(false)
-    setErrorMessage("")
+    event.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage("");
 
-    const res = await login(email.trim(), password)
+    const res = await login(email.trim(), password);
 
     if (res.ok) {
-      setIsSubmitting(false)
-      setIsSuccess(true)
-      toast.success("Welcome back!")
-      const params = new URLSearchParams(window.location.search)
-      const redirect = params.get('redirect') || '/dashboard'
-      window.setTimeout(() => router.push(redirect), 600)
+      toast.success("Authentication successful! Commencing launch...");
+      const params = new URLSearchParams(window.location.search);
+      let redirect = params.get('redirect');
+      
+      if (!redirect) {
+        if (res.user?.role === 'ADMIN') {
+          redirect = '/admin';
+        } else {
+          redirect = '/dashboard';
+        }
+      }
+      
+      window.location.href = redirect;
     } else {
-      setIsSubmitting(false)
-      setErrorMessage(res.error || "Invalid email or password")
-      toast.error(res.error || "Invalid email or password")
+      setIsSubmitting(false);
+      setErrorMessage(res.error || "Authentication failed. Check credentials.");
+      toast.error(res.error || "Authentication failed.");
     }
-  }
+  };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.15),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(168,85,247,0.18),_transparent_25%),linear-gradient(135deg,_#020617_0%,_#0f172a_45%,_#111827_100%)] px-4 py-6 text-slate-50 sm:px-6 lg:px-8 lg:py-8">
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-7xl overflow-hidden rounded-[32px] border border-white/10 bg-slate-950/40 shadow-[0_25px_120px_rgba(2,6,23,0.65)] backdrop-blur-xl">
-        <section className="relative hidden flex-1 overflow-hidden lg:flex">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,_rgba(45,212,191,0.22),_transparent_22%),radial-gradient(circle_at_80%_15%,_rgba(129,140,248,0.23),_transparent_20%),linear-gradient(135deg,_rgba(15,23,42,0.2),_rgba(2,6,23,0.4))]" />
+    <main className="min-h-screen bg-[var(--color-background)] flex relative overflow-hidden">
+      
+      {/* Global Interactive Cursor Glow */}
+      <motion.div 
+        className="pointer-events-none fixed top-0 left-0 w-[600px] h-[600px] bg-[var(--color-primary)]/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 z-0"
+        style={{
+          x: springX,
+          y: springY
+        }}
+      />
 
-          <motion.div
-            className="absolute inset-0"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+      {/* Left Column: Visual (Swapped from Right) */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#050816] items-center justify-center overflow-hidden border-r border-white/5 z-10">
+        {/* Animated Background Ambience */}
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[var(--color-primary)]/15 blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[var(--color-secondary)]/15 blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 pointer-events-none" />
+        
+        {/* Perspective Grid Background */}
+        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", transform: "perspective(500px) rotateX(60deg) scale(2) translateY(100px)", transformOrigin: "bottom center" }} />
+
+        <div className="absolute top-8 left-8 sm:left-16 z-50">
+          <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Home
+          </Link>
+        </div>
+
+        {/* Floating Abstract Element */}
+        <motion.div 
+          animate={{ 
+            y: [-20, 20, -20],
+            rotateX: [0, 5, -5, 0],
+            rotateY: [0, -5, 5, 0]
+          }}
+          transition={{ 
+            duration: 8, 
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="relative z-10 max-w-2xl w-full px-12 h-[600px] flex items-center justify-center scale-110 lg:scale-125"
+          style={{ perspective: 1000 }}
+        >
+          {/* Advanced Animated 3D Core */}
+          <div className="relative w-80 h-80 flex items-center justify-center">
+            {/* Outer Rings */}
+            <motion.div 
+              animate={{ rotate: 360, rotateX: 45, rotateY: 45 }}
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 border-[2px] border-[var(--color-primary)]/40 rounded-full shadow-[0_0_50px_rgba(124,92,255,0.3)]"
+            />
+            <motion.div 
+              animate={{ rotate: -360, rotateX: 60, rotateY: 20 }}
+              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-6 border-[2px] border-[var(--color-secondary)]/50 rounded-full shadow-[0_0_50px_rgba(76,201,240,0.4)]"
+            />
+            <motion.div 
+              animate={{ rotate: 360, rotateX: 20, rotateY: 80 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-12 border border-white/30 rounded-full"
+            />
+            
+            {/* Inner Glowing Core */}
+            <motion.div 
+              animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute w-32 h-32 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] rounded-full blur-xl shadow-[0_0_100px_rgba(124,92,255,1)]"
+            />
+            <div className="absolute w-24 h-24 bg-white/10 backdrop-blur-3xl rounded-full border border-white/40 flex items-center justify-center shadow-inner">
+              <Atom className="w-12 h-12 text-white animate-[spin_8s_linear_infinite]" />
+            </div>
+            
+            {/* Orbiting Particles */}
+            {Array.from({ length: 8 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-full h-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4 + i * 0.5, repeat: Infinity, ease: "linear", delay: i * 0.2 }}
+              >
+                <div className={`absolute top-0 left-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full ${i % 2 === 0 ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-secondary)]'} shadow-[0_0_20px_currentColor]`} />
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Floating UI Badges - Moved outside scaled container to prevent clipping */}
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5, type: "spring" }}
+          className="absolute left-8 xl:left-16 top-16 glass-panel px-6 py-4 rounded-2xl border border-white/20 shadow-2xl flex items-center gap-4 hover:scale-105 transition-transform cursor-default z-50"
+        >
+          <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+            <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-400 font-medium">System Status</p>
+            <p className="text-white font-bold">Online & Ready</p>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.7, type: "spring" }}
+          className="absolute right-8 xl:right-16 bottom-16 glass-panel px-6 py-4 rounded-2xl border border-white/20 shadow-2xl flex items-center gap-4 hover:scale-105 transition-transform cursor-default z-50"
+        >
+          <div className="w-10 h-10 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center">
+            <Atom className="w-5 h-5 text-[var(--color-primary)]" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-400 font-medium">New Courses</p>
+            <p className="text-white font-bold">+12 Added Today</p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Right Column: Form (Swapped from Left) */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 xl:px-24 relative z-10 backdrop-blur-sm">
+        
+        {/* Mobile Navigation */}
+        <div className="lg:hidden absolute top-8 left-8 sm:left-16 z-50">
+          <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back
+          </Link>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, type: "spring" }}
+          className="max-w-md w-full mx-auto mt-16 lg:mt-0"
+        >
+          {/* Logo */}
+          <motion.div 
+            whileHover={{ scale: 1.05 }}
+            className="flex items-center gap-3 mb-8 cursor-pointer"
+            onClick={() => router.push("/")}
           >
-            <div className="absolute left-[8%] top-[12%] h-44 w-44 rounded-full border border-cyan-400/20" />
-            <div className="absolute right-[10%] top-[18%] h-56 w-56 rounded-full border border-fuchsia-400/20" />
-            <div className="absolute bottom-[14%] left-[18%] h-72 w-72 rounded-full border border-violet-400/20" />
+            <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)] flex items-center justify-center shadow-[0_0_20px_rgba(124,92,255,0.4)]">
+              <Atom className="w-7 h-7 text-white animate-[spin_10s_linear_infinite]" />
+            </div>
+            <span className="font-bold text-3xl tracking-tight text-white">
+              Astro<span className="text-[var(--color-primary)]">Lab</span>
+            </span>
           </motion.div>
 
-          <motion.div
-            className="absolute left-[12%] top-[20%] h-28 w-28 rounded-full bg-gradient-to-br from-cyan-400/90 to-sky-600/80 shadow-[0_0_80px_rgba(34,211,238,0.35)]"
-            animate={{ y: [0, -18, 0], x: [0, 10, 0] }}
-            transition={{ duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute right-[17%] top-[25%] h-20 w-20 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl"
-            animate={{ y: [0, 16, 0], x: [0, -12, 0] }}
-            transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-          />
+          <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Welcome Back</h1>
+          <p className="text-gray-400 mb-8">Sign in to continue your learning journey.</p>
 
-          <motion.div
-            className="absolute left-[24%] top-[54%] h-56 w-56 rounded-full border border-cyan-300/15"
-            animate={{ scale: [1, 1.07, 1] }}
-            transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute right-[16%] bottom-[18%] h-40 w-40 rounded-full border border-fuchsia-300/15"
-            animate={{ scale: [1, 1.06, 1] }}
-            transition={{ duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-          />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {errorMessage && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-sm"
+              >
+                {errorMessage}
+              </motion.div>
+            )}
 
-          <div className="absolute left-[42%] top-[32%] h-40 w-40 -translate-x-1/2 rounded-full border border-white/10" />
-          <div className="absolute left-[42%] top-[32%] h-40 w-40 -translate-x-1/2 rounded-full border border-cyan-300/20" />
-          <div className="absolute left-[42%] top-[32%] h-40 w-40 -translate-x-1/2 border-t border-cyan-300/60" />
-
-          <div className="absolute left-[42%] top-[32%] z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-300 shadow-[0_0_30px_rgba(34,211,238,0.7)]" />
-          <div className="absolute left-[48%] top-[40%] z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-fuchsia-300 shadow-[0_0_30px_rgba(232,121,249,0.55)]" />
-          <div className="absolute left-[36%] top-[40%] z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-300 shadow-[0_0_30px_rgba(167,139,250,0.55)]" />
-
-          <div className="absolute left-[37%] top-[42%] h-[200px] w-[2px] -translate-x-1/2 rotate-[18deg] bg-gradient-to-b from-transparent via-cyan-400/60 to-transparent" />
-          <div className="absolute left-[44%] top-[35%] h-[220px] w-[2px] -translate-x-1/2 rotate-[-24deg] bg-gradient-to-b from-transparent via-fuchsia-400/60 to-transparent" />
-
-          <motion.div
-            className="absolute bottom-[12%] left-[8%] rounded-[24px] border border-white/10 bg-white/10 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl"
-            animate={{ y: [0, -10, 0], rotate: [0, 0.5, 0] }}
-            transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-cyan-400/20 p-2 text-cyan-300">
-                <Orbit className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.4em] text-slate-400">Mission</p>
-                <p className="text-sm font-semibold text-slate-100">Launch into discovery</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="absolute bottom-[18%] right-[8%] flex max-w-[280px] flex-col gap-3 rounded-[24px] border border-white/10 bg-slate-900/55 p-5 shadow-[0_20px_70px_rgba(3,7,18,0.4)] backdrop-blur-xl">
-            <p className="text-sm font-semibold text-slate-100">“Every discovery begins with curiosity.”</p>
-            <div className="flex items-center gap-2 text-sm text-slate-400">
-              <Sparkles className="h-4 w-4 text-cyan-300" />
-              Science-led learning, beautifully designed
-            </div>
-          </div>
-
-          <div className="relative z-10 flex w-full flex-col justify-between p-10 xl:p-14">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-sky-500 to-violet-500 text-white shadow-[0_10px_30px_rgba(34,211,238,0.3)]">
-                <Atom className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-lg font-semibold tracking-tight text-white">Astro Lab</p>
-                <p className="text-sm text-slate-400">Learn the universe in motion</p>
-              </div>
-            </div>
-
-            <div className="space-y-8">
-              <div className="max-w-xl space-y-4">
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-sm text-cyan-200">
-                  <Sparkles className="h-4 w-4" />
-                  Trusted by curious minds worldwide
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-500 group-focus-within:text-[var(--color-primary)] transition-colors" />
                 </div>
-                <h1 className="text-4xl font-semibold tracking-tight text-white xl:text-5xl">
-                  A brighter path to scientific mastery.
-                </h1>
-                <p className="max-w-lg text-lg leading-8 text-slate-300">
-                  Explore immersive lessons, guided by top experts, and step into a learning experience engineered for momentum.
-                </p>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all shadow-inner hover:bg-white/10"
+                  placeholder="name@example.com"
+                  required
+                />
               </div>
+            </motion.div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                {stats.map((stat, index) => {
-                  const Icon = stat.icon
-                  return (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.08, duration: 0.45 }}
-                      className="flex items-center gap-3 rounded-[20px] border border-white/10 bg-white/10 p-4 backdrop-blur-xl"
-                    >
-                      <div className="rounded-2xl bg-white/10 p-2 text-cyan-300">
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <span className="text-sm font-medium text-slate-100">{stat.label}</span>
-                    </motion.div>
-                  )
-                })}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 text-sm text-slate-400">
-              <div className="h-px flex-1 bg-gradient-to-r from-white/15 via-white/40 to-transparent" />
-              <span>Designed for modern learners</span>
-            </div>
-          </div>
-        </section>
-
-        <section className="flex w-full items-center justify-center bg-slate-950/60 p-4 sm:p-6 lg:w-[42%] lg:p-8 xl:p-10">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="w-full max-w-lg rounded-[28px] border border-white/10 bg-white/10 p-6 shadow-[0_20px_70px_rgba(15,23,42,0.45)] backdrop-blur-2xl sm:p-8"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-sky-500 to-violet-500 shadow-[0_12px_35px_rgba(34,211,238,0.25)]">
-                  <Atom className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <p className="text-xl font-semibold text-white">Astro Lab</p>
-                  <p className="text-sm text-slate-400">Science learning, reimagined</p>
-                </div>
-              </div>
-              <div className="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200">
-                Secure onboarding
-              </div>
-            </div>
-
-            <div className="mt-8 space-y-2">
-              <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Welcome Back</h2>
-              <p className="text-sm leading-7 text-slate-300 sm:text-[15px]">
-                Continue exploring the universe of science with a beautifully guided experience.
-              </p>
-            </div>
-
-            <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-slate-200">Email</span>
-                <div className="group flex items-center gap-3 rounded-[18px] border border-white/10 bg-slate-900/70 px-4 py-3 transition-all duration-300 focus-within:border-cyan-400/70 focus-within:bg-slate-900/90 focus-within:shadow-[0_0_0_3px_rgba(34,211,238,0.18)]">
-                  <Mail className="h-4 w-4 text-slate-400 transition-colors group-focus-within:text-cyan-300" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder="name@astro-lab.com"
-                    className="w-full border-none bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
-                    required
-                  />
-                </div>
-              </label>
-
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-slate-200">Password</span>
-                <div className="group flex items-center gap-3 rounded-[18px] border border-white/10 bg-slate-900/70 px-4 py-3 transition-all duration-300 focus-within:border-cyan-400/70 focus-within:bg-slate-900/90 focus-within:shadow-[0_0_0_3px_rgba(34,211,238,0.18)]">
-                  <Lock className="h-4 w-4 text-slate-400 transition-colors group-focus-within:text-cyan-300" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    placeholder="Enter your password"
-                    className="w-full border-none bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((value) => !value)}
-                    className="rounded-full p-1 text-slate-400 transition hover:bg-white/10 hover:text-white"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </label>
-
-              <div className="flex items-center justify-between gap-3 text-sm">
-                <label className="flex cursor-pointer items-center gap-2 text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={() => setRememberMe((value) => !value)}
-                    className="h-4 w-4 rounded border-white/20 bg-slate-900 text-cyan-400 focus:ring-cyan-400"
-                  />
-                  Remember me
-                </label>
-                <Link href="/forgot-password" className="text-cyan-300 transition hover:text-cyan-200">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-300">Password</label>
+                <Link href="#" className="text-sm font-medium text-[var(--color-secondary)] hover:text-white transition-colors">
                   Forgot password?
                 </Link>
               </div>
-
-              <motion.button
-                type="submit"
-                whileTap={{ scale: 0.98 }}
-                whileHover={{ y: -2, scale: 1.01 }}
-                disabled={isSubmitting}
-                className={cn(
-                  "relative flex w-full items-center justify-center gap-2 rounded-[20px] bg-gradient-to-r from-cyan-400 via-sky-500 to-violet-500 px-4 py-3.5 text-sm font-semibold text-white shadow-[0_15px_35px_rgba(34,211,238,0.22)] transition-all duration-300",
-                  isSubmitting && "cursor-wait opacity-90",
-                  isSuccess && "from-emerald-400 via-emerald-500 to-cyan-500"
-                )}
-              >
-                <AnimatePresence mode="wait" initial={false}>
-                  {isSubmitting ? (
-                    <motion.span
-                      key="loading"
-                      initial={{ opacity: 0, y: 2 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -2 }}
-                      className="flex items-center gap-2"
-                    >
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                      Opening your dashboard...
-                    </motion.span>
-                  ) : isSuccess ? (
-                    <motion.span
-                      key="success"
-                      initial={{ opacity: 0, y: 2 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -2 }}
-                      className="flex items-center gap-2"
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      Welcome back, explorer
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="idle"
-                      initial={{ opacity: 0, y: 2 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -2 }}
-                      className="flex items-center gap-2"
-                    >
-                      Continue Learning
-                      <ArrowRight className="h-4 w-4" />
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-            </form>
-
-            {errorMessage ? (
-              <div className="rounded-[16px] border border-rose-400/20 bg-rose-400/10 px-3 py-2 text-sm text-rose-200">
-                {errorMessage}
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-[var(--color-primary)] transition-colors" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-12 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all shadow-inner hover:bg-white/10"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
-            ) : null}
+            </motion.div>
 
-            <div className="rounded-[16px] border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-sm text-cyan-100">
-              Demo credentials: admin@astro-lab.com / admin123 or student@astro-lab.com / student123
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="pt-4"
+            >
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] hover:opacity-90 text-white rounded-2xl font-bold transition-all shadow-[0_0_20px_rgba(124,92,255,0.4)] hover:shadow-[0_0_30px_rgba(76,201,240,0.6)] flex items-center justify-center gap-2 group disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    Sign In <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </motion.button>
+            </motion.div>
 
-            <div className="my-6 flex items-center gap-3 text-sm text-slate-400">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              <span>or continue with</span>
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-            </div>
+            {/* Social Logins */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="mt-6"
+            >
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-[var(--color-background)] text-gray-500">Or continue with</span>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="button" className="flex items-center justify-center py-3 px-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group">
+                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5 group-hover:scale-110 transition-transform" alt="Google" />
+                </motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="button" className="flex items-center justify-center py-3 px-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group">
+                  <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-5 h-5 invert opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all" alt="GitHub" />
+                </motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="button" className="flex items-center justify-center py-3 px-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group">
+                  <img src="https://www.svgrepo.com/show/511330/apple-173.svg" className="w-5 h-5 invert opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all" alt="Apple" />
+                </motion.button>
+              </div>
+            </motion.div>
+          </form>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              {socialProviders.map((provider) => {
-                const Icon = provider.icon
-                return (
-                  <button
-                    key={provider.name}
-                    type="button"
-                    className="flex items-center justify-center gap-2 rounded-[18px] border border-white/10 bg-slate-900/70 px-3 py-3 text-sm font-medium text-slate-100 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-slate-900"
-                  >
-                    <Icon className="h-4 w-4" />
-                    {provider.name}
-                  </button>
-                )
-              })}
-            </div>
-
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-1 text-sm text-slate-300">
-              <span>Don’t have an account?</span>
-              <Link href="/register" className="font-semibold text-cyan-300 transition hover:text-cyan-200">
-                Create Account
-                <ChevronRight className="ml-1 inline h-4 w-4" />
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-8 text-center"
+          >
+            <p className="text-gray-400">
+              Don't have an account?{' '}
+              <Link href="/register" className="font-bold text-white hover:text-[var(--color-secondary)] transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-[var(--color-secondary)] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left">
+                Create one now
               </Link>
-            </div>
-
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4 border-t border-white/10 pt-5 text-sm text-slate-400">
-              <Link href="/privacy" className="transition hover:text-white">
-                Privacy
-              </Link>
-              <Link href="/terms" className="transition hover:text-white">
-                Terms
-              </Link>
-              <Link href="/contact" className="transition hover:text-white">
-                Support
-              </Link>
-            </div>
+            </p>
           </motion.div>
-        </section>
+        </motion.div>
       </div>
+
     </main>
-  )
+  );
 }
