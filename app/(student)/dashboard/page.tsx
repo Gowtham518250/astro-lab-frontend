@@ -145,6 +145,16 @@ function DashboardContent() {
                   <br/> Ready to decode it today?
                 </p>
               </div>
+              <div className="flex-shrink-0">
+                <a 
+                  href="/astrolab-app.apk" 
+                  download="AstroLab.apk"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 px-6 py-3 font-bold text-white shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(139,92,246,0.6)]"
+                >
+                  <Rocket className="h-5 w-5" />
+                  Download App
+                </a>
+              </div>
             </div>
           </motion.div>
 
