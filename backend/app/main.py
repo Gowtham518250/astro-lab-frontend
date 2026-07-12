@@ -31,7 +31,7 @@ if not allow_origins:
     ]
 allow_origin_regex = os.getenv(
     "CORS_ORIGIN_REGEX",
-    r"http://localhost:\d+|http://127\.0\.0\.1:\d+|https://.*\.vercel\.app|https://.*\.netlify\.app|https://.*\.github\.dev"
+    r"https?://.*"
 )
 
 app.add_middleware(
