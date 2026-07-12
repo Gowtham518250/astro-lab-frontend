@@ -172,7 +172,7 @@ export default function HeroCoursera() {
                 <X className="w-5 h-5" />
               </button>
               <iframe 
-                src="https://www.youtube-nocookie.com/embed/jGwO_UgTS7I?autoplay=1" 
+                src="https://www.youtube-nocookie.com/embed/i_LwzRmA_08?autoplay=1" 
                 title="Machine Learning Course Preview"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowFullScreen
