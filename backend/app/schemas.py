@@ -22,6 +22,17 @@ class UserLogin(BaseModel):
     email: Optional[EmailStr] = None
     password: Optional[str] = None
     name: Optional[str] = None # For register action
+    role: Optional[str] = None # For customer vs user
+
+class LoginPayload(BaseModel):
+    email: EmailStr
+    password: str
+
+class RegisterPayload(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+    role: Optional[str] = "USER"
 
 class AuthUserResponse(UserBase):
     id: str
@@ -29,6 +40,11 @@ class AuthUserResponse(UserBase):
     totalXP: int
     createdAt: datetime
     updatedAt: datetime
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: AuthUserResponse
 
 # Lesson schemas
 class LessonBase(BaseORMModel):

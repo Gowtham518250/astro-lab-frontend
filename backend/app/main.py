@@ -1,5 +1,7 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from .database import engine, Base, SessionLocal
 from .config import settings
 from .routers import auth, courses, progress, payments, certificates, notifications, users, favorites, quiz, lessons, categories, instructors, reviews, coupons, payment_provider, platform, enterprise
@@ -11,10 +13,31 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Astro Lab API", version="1.0.0")
 
-# CORS middleware for development
+# Mount static files for uploads
+os.makedirs("uploads", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+# CORS middleware for local development and deployed frontends
+configured_origins = os.getenv("CORS_ORIGINS", "").split(",")
+allow_origins = [origin.strip() for origin in configured_origins if origin.strip()]
+if not allow_origins:
+    allow_origins = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:3002",
+    ]
+allow_origin_regex = os.getenv(
+    "CORS_ORIGIN_REGEX",
+    r"http://localhost:\d+|http://127\.0\.0\.1:\d+|https://.*\.vercel\.app|https://.*\.netlify\.app|https://.*\.github\.dev"
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=allow_origins,
+    allow_origin_regex=allow_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -43,13 +66,19 @@ app.include_router(enterprise.router, prefix="/api")
 def home():
     return {"status": "Astro Lab API is running"}
 
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
 # Seed DB on startup if empty
 @app.on_event("startup")
 def seed_database():
+    print("Starting up...")
     db = SessionLocal()
     try:
         # Check if users already exist
         user_count = db.query(User).count()
+        print(f"User count in DB: {user_count}")
         if user_count == 0:
             print("Seeding database...")
             # Create users
@@ -200,6 +229,13 @@ def seed_database():
             db.commit()
 
             print("Database seeded successfully!")
-            
-    finally:
+    except Exception as e:
+        print(f"Error during database seeding: {e}")
         db.close()
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
+    print("Startup complete!")

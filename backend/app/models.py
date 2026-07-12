@@ -29,7 +29,7 @@ class User(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False, index=True)
-    hashedPassword = Column(String, nullable=False) # Changed from password to hashedPassword
+    hashedPassword = Column(String, nullable=False)
     emailVerified = Column(Boolean, default=False)
     image = Column(String, nullable=True)
     role = Column(String, default="STUDENT")
@@ -65,7 +65,7 @@ class Course(Base):
     category = Column(String, default="Science")
     instructor = Column(String, default="Astro Lab Team")
     level = Column(String, default="BEGINNER")
-    duration = Column(Integer, nullable=False) # in minutes
+    duration = Column(Integer, nullable=False)
     price = Column(Float, default=0.0)
     discount = Column(Float, default=0.0)
 
@@ -245,7 +245,7 @@ class ActivityLog(Base):
     action = Column(String, nullable=False)
     entityType = Column(String, nullable=True)
     entityId = Column(String, nullable=True)
-    metadata = Column(JSON, nullable=True)
+    log_metadata = Column(JSON, nullable=True)  # Renamed from metadata (reserved)
     createdAt = Column(DateTime, default=func.now())
 
     user = relationship("User", back_populates="activity_logs")
@@ -416,6 +416,19 @@ class Quiz(Base):
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now())
 
     course = relationship("Course", back_populates="quizzes")
+    questions = relationship("QuizQuestion", back_populates="quiz", cascade="all, delete-orphan")
+
+
+class QuizQuestion(Base):
+    __tablename__ = "QuizQuestion"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    quizId = Column(String, ForeignKey("Quiz.id", ondelete="CASCADE"), nullable=False)
+    text = Column(String, nullable=False)
+    options = Column(JSON, nullable=False)
+    answer = Column(Integer, nullable=False)
+
+    quiz = relationship("Quiz", back_populates="questions")
 
 
 class Exam(Base):
@@ -610,7 +623,7 @@ class Lesson(Base):
     title = Column(String, nullable=False)
     description = Column(String, nullable=False)
     videoUrl = Column(String, nullable=False)
-    duration = Column(Integer, default=0) # in seconds
+    duration = Column(Integer, default=0)
     position = Column(Integer, nullable=False)
     isFree = Column(Boolean, default=False)
 
@@ -714,26 +727,3 @@ class Notification(Base):
     createdAt = Column(DateTime, default=func.now())
 
     user = relationship("User", back_populates="notifications")
-
-
-class Quiz(Base):
-    __tablename__ = "Quiz"
-
-    id = Column(String, primary_key=True, default=generate_uuid)
-    courseId = Column(String, nullable=False)
-    title = Column(String, nullable=False)
-
-    createdAt = Column(DateTime, default=func.now())
-    questions = relationship("QuizQuestion", back_populates="quiz", cascade="all, delete-orphan")
-
-
-class QuizQuestion(Base):
-    __tablename__ = "QuizQuestion"
-
-    id = Column(String, primary_key=True, default=generate_uuid)
-    quizId = Column(String, ForeignKey("Quiz.id", ondelete="CASCADE"), nullable=False)
-    text = Column(String, nullable=False)
-    options = Column(JSON, nullable=False) # JSON list of option strings
-    answer = Column(Integer, nullable=False) # index of correct option
-
-    quiz = relationship("Quiz", back_populates="questions")
